@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     AUTO_TASK: bool = True
     JOIN_TG_CHANNELS: bool = True
     CLAIM_REWARD: bool = True
-    REF_ID: str = ''
+    REF_ID: str = '464869246'
     DISABLED_TASKS: list[str] = ['INVITE_FRIENDS', 'TON_TRANSACTION', 'BOOST_CHANNEL', 'ACTIVITY_CHALLENGE', 'CONNECT_WALLET']
 
 

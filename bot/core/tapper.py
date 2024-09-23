@@ -252,8 +252,8 @@ class Tapper:
             if proxy:
                 await self.check_proxy(http_client=http_client, proxy=proxy)
 
-            delay = randint(5, 30)
-            logger.info(f"{self.session_name} | Delay {delay} seconds")
+            delay = randint(settings.START_DELAY[0], settings.START_DELAY[1])
+            logger.info(f"{self.session_name} | Start delay {delay} seconds")
             await asyncio.sleep(delay=delay)
 
             token_live_time = randint(3500, 3600)
