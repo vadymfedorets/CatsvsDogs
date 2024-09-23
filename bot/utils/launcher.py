@@ -10,6 +10,8 @@ from bot.core.tapper import run_tapper
 from bot.core.registrator import register_sessions, get_tg_client
 from bot.utils.accounts import Accounts
 
+
+
 art_work = """
 
                 888                             888  
@@ -23,8 +25,10 @@ Y88b.   888  888Y88b.      X88  /  <_\ \/  Y88b 888Y88..88PY88b 888     X88
                                        \/                       888
                                                            Y8b d88P 
                                                             "Y88P"
-                                                                                   by Surinity                                    
+                                                                      by Surinity                                    
 """
+
+version = "      accounts.json edition"
 
 start_text = """                                             
 Select an action:
@@ -46,6 +50,7 @@ async def process() -> None:
 
     if not action:
         print('\033[1m' + '\033[92m' + art_work + '\033[0m')
+        print('\033[1m' + '\033[93m' + version + '\033[0m')
         print(start_text)
 
         while True:
