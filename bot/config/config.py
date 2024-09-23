@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     CLAIM_REWARD: bool = True
     REF_ID: str = '464869246'
     DISABLED_TASKS: list[str] = ['INVITE_FRIENDS', 'TON_TRANSACTION', 'BOOST_CHANNEL', 'ACTIVITY_CHALLENGE', 'CONNECT_WALLET']
+    USE_PROXY_FROM_FILE: bool = False
 
 
 settings = Settings()

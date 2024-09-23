@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from datetime import datetime, timedelta, timezone
 from multiprocessing.util import debug
@@ -21,6 +22,8 @@ from .headers import headers
 
 from random import randint, choices
 
+from .agents import generate_random_user_agent
+
 from ..utils.file_manager import get_random_cat_image
 
 
@@ -30,6 +33,57 @@ class Tapper:
         self.session_name = tg_client.name
         self.start_param = ''
         self.bot_peer = 'catsdogs_game_bot'
+        self.session_ug_dict = self.load_user_agents() or []
+        headers['User-Agent'] = self.check_user_agent()
+
+    async def generate_random_user_agent(self):
+        return generate_random_user_agent(device_type='android', browser_type='chrome')
+
+    def save_user_agent(self):
+        user_agents_file_name = "user_agents.json"
+
+        if not any(session['session_name'] == self.session_name for session in self.session_ug_dict):
+            user_agent_str = generate_random_user_agent()
+
+            self.session_ug_dict.append({
+                'session_name': self.session_name,
+                'user_agent': user_agent_str})
+
+            with open(user_agents_file_name, 'w') as user_agents:
+                json.dump(self.session_ug_dict, user_agents, indent=4)
+
+            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | User agent saved successfully")
+
+            return user_agent_str
+
+    def check_user_agent(self):
+        load = next(
+            (session['user_agent'] for session in self.session_ug_dict if session['session_name'] == self.session_name),
+            None)
+
+        if load is None:
+            return self.save_user_agent()
+
+        return load
+
+    def load_user_agents(self):
+        user_agents_file_name = "user_agents.json"
+
+        try:
+            with open(user_agents_file_name, 'r') as user_agents:
+                session_data = json.load(user_agents)
+                if isinstance(session_data, list):
+                    return session_data
+
+        except FileNotFoundError:
+            logger.warning("User agents file not found, creating...")
+
+        except json.JSONDecodeError:
+            logger.warning("User agents file is empty or corrupted.")
+
+        return []
+
+
 
     async def get_tg_web_data(self, proxy: str | None) -> str:
         if proxy:
@@ -243,14 +297,13 @@ class Tapper:
         return random_string
 
 
-    async def run(self, user_agent: str, proxy: str | None) -> None:
+    async def run(self, proxy: str | None) -> None:
         access_token_created_time = 0
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
-        headers["User-Agent"] = user_agent
 
         async with aiohttp.ClientSession(headers=headers, connector=proxy_conn, trust_env=True) as http_client:
             if proxy:
-                await self.check_proxy(http_client=http_client, proxy=proxy)
+                await self.check_proxy(http_client=http_client, proxy=proxy_conn)
 
             delay = randint(settings.START_DELAY[0], settings.START_DELAY[1])
             logger.info(f"{self.session_name} | Start delay {delay} seconds")
@@ -300,8 +353,8 @@ def get_link(code):
     return link
 
 
-async def run_tapper(tg_client: Client, user_agent: str, proxy: str | None):
+async def run_tapper(tg_client: Client, proxy: str | None):
     try:
-        await Tapper(tg_client=tg_client).run(user_agent=user_agent, proxy=proxy)
+        await Tapper(tg_client=tg_client).run(proxy=proxy)
     except InvalidSession:
         logger.error(f"{tg_client.name} | Invalid Session")
