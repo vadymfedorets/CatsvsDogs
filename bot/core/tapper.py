@@ -218,10 +218,19 @@ class Tapper:
             last_claimed.raise_for_status()
             last_claimed_json = await last_claimed.json()
             claimed_at = last_claimed_json['claimed_at']
-            available_to_claim, current_time = None, datetime.utcnow().replace(tzinfo=timezone.utc)
+            available_to_claim, current_time = None, datetime.now(timezone.utc)
             if claimed_at:
-                available_to_claim = datetime.fromisoformat(claimed_at.replace("Z", "+00:00")) + timedelta(
-                    hours=8, minutes=1) if claimed_at else None
+                claimed_at = claimed_at.replace("Z", "+00:00")
+                logger.debug(claimed_at)
+                date_part, rest = claimed_at.split('.')
+                time_part, timez = rest.split('+')
+                logger.debug(timez)
+                microseconds = time_part.ljust(6, '0')
+                logger.debug(microseconds)
+                claimed_at = f"{date_part}.{microseconds}+{timez}"
+                logger.debug(claimed_at)
+
+                available_to_claim = datetime.fromisoformat(claimed_at) + timedelta(hours=8)
             if not claimed_at or current_time > available_to_claim:
                 response = await http_client.post('https://api.catsdogs.live/game/claim')
                 response.raise_for_status()
