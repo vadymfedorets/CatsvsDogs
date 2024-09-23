@@ -102,8 +102,7 @@ class Tapper:
 
             if response.status == 404 or response.status == 400:
                 response = await http_client.post("https://api.catsdogs.live/auth/register",
-                                                  params={"inviter_id": self.start_param,
-                                                          "race": choices([1, 2], weights=[50, 50], k=1)[0]})
+                                                   json={"inviter_id": int(self.start_param), "race": 1})
                 response.raise_for_status()
                 logger.success(f"{self.session_name} | User successfully registered!")
                 await asyncio.sleep(delay=2)
@@ -282,7 +281,7 @@ class Tapper:
 
                         if settings.CLAIM_REWARD:
                             reward_status = await self.claim_reward(http_client=http_client)
-                            logger.info(f"Claim reward: {reward_status}")
+                            logger.info(f"{self.session_name} | Claim reward: {reward_status}")
 
                         logger.info(f"{self.session_name} | Sleep <y>{round(sleep_time / 60, 1)}</y> min")
                         await asyncio.sleep(delay=sleep_time)
