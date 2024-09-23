@@ -10,7 +10,7 @@
 | Multithreading                                            |     ✅     |
 | Proxy binding to session                                  |     ✅     |
 | User-Agent binding to session                             |     ✅     |
-| Support for tdata / pyrogram .session / telethon .session |     ✅     |
+| Support pyrogram .session                                 |     ✅     |
 | Registration in bot                                       |     ✅     |
 | Auto-tasks                                                |     ✅     |
 | Daily rewards                                             |     ✅     |
