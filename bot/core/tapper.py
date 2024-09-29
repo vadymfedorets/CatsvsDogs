@@ -159,25 +159,27 @@ class Tapper:
             tasks_json = await tasks_req.json()
 
             for task_json in tasks_json:
-                if not task_json['transaction_id']:
-                    if task_json['channel_id'] != '':
-                        if not settings.JOIN_TG_CHANNELS:
-                            continue
-                        url = task_json['link']
-                        logger.info(f"{self.session_name} | Performing TG subscription to <lc>{url}</lc>")
-                        await self.join_tg_channel(url)
-                        result = await self.verify_task(http_client, task_json['id'])
-                    else:
-                        logger.info(f"{self.session_name} | Performing <lc>{task_json['title']}</lc> task")
-                        result = await self.verify_task(http_client, task_json['id'])
+                if not task_json['hidden']:
+                    if not task_json['transaction_id']:
+                        result = None
+                        if task_json['channel_id'] != '' and not task_json['type']:
+                            if not settings.JOIN_TG_CHANNELS:
+                                continue
+                            url = task_json['link']
+                            logger.info(f"{self.session_name} | Performing TG subscription to <lc>{url}</lc>")
+                            await self.join_tg_channel(url)
+                            result = await self.verify_task(http_client, task_json['id'])
+                        elif task_json['type'] != "invite":
+                            logger.info(f"{self.session_name} | Performing <lc>{task_json['title']}</lc> task")
+                            result = await self.verify_task(http_client, task_json['id'])
 
-                    if result:
-                        logger.success(f"{self.session_name} | Task <lc>{task_json['title']}</lc> completed! |"
-                                       f" Reward: <e>+{task_json['amount']}</e> FOOD")
-                    else:
-                        logger.info(f"{self.session_name} | Task <lc>{task_json['title']}</lc> not completed")
+                        if result:
+                            logger.success(f"{self.session_name} | Task <lc>{task_json['title']}</lc> completed! |"
+                                           f" Reward: <e>+{task_json['amount']}</e> FOOD")
+                        else:
+                            logger.info(f"{self.session_name} | Task <lc>{task_json['title']}</lc> not completed")
 
-                    await asyncio.sleep(delay=randint(5, 10))
+                        await asyncio.sleep(delay=randint(5, 10))
 
         except Exception as error:
             logger.error(f"{self.session_name} | Unknown error when processing tasks: {error}")
