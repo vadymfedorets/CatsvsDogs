@@ -162,7 +162,7 @@ class Tapper:
                 if not task_json['hidden']:
                     if not task_json['transaction_id']:
                         result = None
-                        if task_json['channel_id'] != '' and not task_json['type']:
+                        if task_json['channel_id'] != '' and task_json['type'] == 'tg':
                             if not settings.JOIN_TG_CHANNELS:
                                 continue
                             url = task_json['link']
